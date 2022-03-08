@@ -72,7 +72,7 @@ class _TileState extends State<Tile> {
                   alignment: Alignment.center,
                   children: [
                     RiveAnimation.asset(
-                      'gradient_loop.riv',
+                      'assets/images/gradient_loop.riv',
                       animations: [getAnimation()],
                     ),
                     Text(widget.tile.value.toString(),

@@ -165,7 +165,7 @@ class ResponsiveLayoutState extends State<ResponsiveLayout> {
         maxHeight: 512,
       ),
       child: Image.asset(
-        'cat.gif',
+        'assets/images/cat.gif',
         width: screenWidth > PuzzleSize.smallScreenWidth
             ? screenWidth * 0.3
             : screenWidth * 0.5,

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'layout.dart';
@@ -21,7 +22,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   preloadImage() {
-    precacheImage(AssetImage('cat.gif'), context);
+    precacheImage(AssetImage('assets/images/cat.gif'), context);
   }
 
   @override
