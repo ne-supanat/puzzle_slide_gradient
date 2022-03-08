@@ -226,25 +226,6 @@ class _BoardState extends State<Board> {
     swapTile(tileOffsets[whiteSpaceValue]!, whiteSpaceCurrentPosition);
   }
 
-  shuffle() {
-    final randomNumbers = List.generate(size * size, (index) => index + 1)
-      ..shuffle();
-
-    for (var i = 0; i < randomNumbers.length; i++) {
-      if (tileOffsets[randomNumbers[i]] != null) {
-        tileOffsets[randomNumbers[i]] = tileOffsets[randomNumbers[i]]!
-            .copyWith(newPosition: tileOffsets[i + 1]!.correctPosition);
-      }
-    }
-
-    whiteSpaceCurrentPosition = tileOffsets[whiteSpaceValue]!.currentPosition;
-
-    setState(() {
-      isFinish = false;
-      tileOffsets;
-    });
-  }
-
   swapTile(TileModel selectedTile, Offset targetPosition) {
     setState(() {
       tileOffsets[selectedTile.value] = tileOffsets[selectedTile.value]!
@@ -264,5 +245,95 @@ class _BoardState extends State<Board> {
         })
       },
     );
+  }
+
+  shuffle() {
+    do {
+      final randomNumbers = List.generate(size * size, (index) => index + 1)
+        ..shuffle();
+
+      for (var i = 0; i < randomNumbers.length; i++) {
+        if (tileOffsets[randomNumbers[i]] != null) {
+          tileOffsets[randomNumbers[i]] = tileOffsets[randomNumbers[i]]!
+              .copyWith(newPosition: tileOffsets[i + 1]!.correctPosition);
+        }
+      }
+
+      whiteSpaceCurrentPosition = tileOffsets[whiteSpaceValue]!.currentPosition;
+    } while (!isSolvable() ||
+        !tileOffsets.values.any(
+            (element) => element.correctPosition == element.currentPosition));
+
+    setState(() {
+      isFinish = false;
+      tileOffsets;
+    });
+  }
+
+  bool isSolvable() {
+    final inversions = countInversions();
+
+    if (size.isOdd) {
+      return inversions.isEven;
+    }
+
+    final whitespace = tileOffsets[whiteSpaceValue];
+    final whitespaceRow = whitespace!.currentPosition.dy.toInt();
+
+    if (((size - whitespaceRow) + 1).isOdd) {
+      return inversions.isEven;
+    } else {
+      return inversions.isOdd;
+    }
+  }
+
+  /// Gives the number of inversions in a puzzle given its tile arrangement.
+  ///
+  /// An inversion is when a tile of a lower value is in a greater position than
+  /// a tile of a higher value.
+  int countInversions() {
+    var count = 0;
+    for (var a = 0; a < size; a++) {
+      final tileA = tileOffsets[a + 1];
+      if (tileA!.value == whiteSpaceValue) {
+        continue;
+      }
+
+      for (var b = a + 1; b < size; b++) {
+        final tileB = tileOffsets[b + 1];
+        if (_isInversion(tileA, tileB!)) {
+          count++;
+        }
+      }
+    }
+    return count;
+  }
+
+  /// Determines if the two tiles are inverted.
+  bool _isInversion(TileModel a, TileModel b) {
+    if (b != tileOffsets[whiteSpaceValue] && a.value != b.value) {
+      if (b.value < a.value) {
+        return compareTo(b.currentPosition, a.currentPosition) > 0;
+      } else {
+        return compareTo(a.currentPosition, b.currentPosition) > 0;
+      }
+    }
+    return false;
+  }
+
+  int compareTo(Offset origin, Offset other) {
+    if (origin.dy < other.dy) {
+      return -1;
+    } else if (origin.dy > other.dy) {
+      return 1;
+    } else {
+      if (origin.dx < other.dx) {
+        return -1;
+      } else if (origin.dx > other.dx) {
+        return 1;
+      } else {
+        return 0;
+      }
+    }
   }
 }
