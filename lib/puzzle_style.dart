@@ -54,10 +54,11 @@ class PuzzleTextStyle {
 }
 
 class PuzzleColor {
-  static const Color bg = Color(0xFF2C2F4D);
   static const Color text = Color(0xFF313131);
 
   static const Color white = Color(0xFFEEEEEE);
+
+  static const List<Color> bgGradient = [Color(0xFF1F1D36), Color(0xFF3F3351)];
 }
 
 class PuzzleSize {
@@ -76,5 +77,4 @@ class PuzzleSize {
   static const double smallGapSize = 24;
   static const double mediumGapSize = 24;
   static const double largeGapSize = 48;
-  
 }

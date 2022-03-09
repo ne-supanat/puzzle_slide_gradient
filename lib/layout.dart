@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:slide_puzz/puzzle_controller.dart';
 
 import 'board.dart';
+import 'puzzle_controller.dart';
 import 'puzzle_style.dart';
 
 class ResponsiveLayout extends StatefulWidget {
@@ -46,14 +46,19 @@ class ResponsiveLayoutState extends State<ResponsiveLayout> {
             ? PuzzleSize.mediumGapSize
             : PuzzleSize.smallGapSize;
     return Scaffold(
-      backgroundColor: PuzzleColor.bg,
-      body: Container(
-          child: Stack(
+      backgroundColor: PuzzleColor.bgGradient[0],
+      body: Stack(
         alignment: Alignment.center,
         children: [
           Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topRight,
+                end: Alignment.bottomLeft,
+                colors: PuzzleColor.bgGradient,
+              ),
+            ),
             alignment: Alignment.bottomRight,
-            child: decorationPart(),
           ),
           SingleChildScrollView(
             child: screenWidth > PuzzleSize.mediumScreenWidth
@@ -65,12 +70,18 @@ class ResponsiveLayoutState extends State<ResponsiveLayout> {
           Visibility(
               visible: !isReady,
               child: Container(
-                color: PuzzleColor.bg,
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topRight,
+                    end: Alignment.bottomLeft,
+                    colors: PuzzleColor.bgGradient,
+                  ),
+                ),
                 child: const Center(
                     child: CircularProgressIndicator(color: PuzzleColor.white)),
               ))
         ],
-      )),
+      ),
     );
   }
 
@@ -155,22 +166,6 @@ class ResponsiveLayoutState extends State<ResponsiveLayout> {
         : screenWidth > PuzzleSize.smallScreenWidth
             ? Board.medium(size, onAllCorrect)
             : Board.small(size, onAllCorrect);
-  }
-
-  decorationPart() {
-    return Container(
-      alignment: Alignment.bottomRight,
-      constraints: const BoxConstraints(
-        maxWidth: 512,
-        maxHeight: 512,
-      ),
-      child: Image.asset(
-        'assets/images/cat.gif',
-        width: screenWidth > PuzzleSize.smallScreenWidth
-            ? screenWidth * 0.3
-            : screenWidth * 0.5,
-      ),
-    );
   }
 
   gapSpaceVertical() {
