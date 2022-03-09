@@ -65,7 +65,7 @@ class _BoardState extends State<Board> {
     size = widget.size;
     generateTile(size);
     WidgetsBinding.instance?.addPostFrameCallback((_) {
-      shuffle();
+      simulationShuffle();
     });
   }
 
@@ -92,7 +92,7 @@ class _BoardState extends State<Board> {
         builder: (context, snapshot) {
           if (PuzzleController.getShouldShuffle()) {
             WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-              shuffle();
+              simulationShuffle();
             });
             PuzzleController.shouldShuffle = false;
           }
@@ -247,93 +247,87 @@ class _BoardState extends State<Board> {
     );
   }
 
-  shuffle() {
-    do {
-      final randomNumbers = List.generate(size * size, (index) => index + 1)
-        ..shuffle();
+  simulationShuffle() {
+    for (var i = 0; i < 35; i++) {
+      final whitePos = whiteSpaceCurrentPosition;
 
-      for (var i = 0; i < randomNumbers.length; i++) {
-        if (tileOffsets[randomNumbers[i]] != null) {
-          tileOffsets[randomNumbers[i]] = tileOffsets[randomNumbers[i]]!
-              .copyWith(newPosition: tileOffsets[i + 1]!.correctPosition);
-        }
-      }
-
-      whiteSpaceCurrentPosition = tileOffsets[whiteSpaceValue]!.currentPosition;
-    } while (!isSolvable() ||
-        !tileOffsets.values.any(
-            (element) => element.correctPosition == element.currentPosition));
-
-    setState(() {
-      isFinish = false;
-      tileOffsets;
-    });
-  }
-
-  bool isSolvable() {
-    final inversions = countInversions();
-
-    if (size.isOdd) {
-      return inversions.isEven;
-    }
-
-    final whitespace = tileOffsets[whiteSpaceValue];
-    final whitespaceRow = whitespace!.currentPosition.dy.toInt();
-
-    if (((size - whitespaceRow) + 1).isOdd) {
-      return inversions.isEven;
-    } else {
-      return inversions.isOdd;
-    }
-  }
-
-  /// Gives the number of inversions in a puzzle given its tile arrangement.
-  ///
-  /// An inversion is when a tile of a lower value is in a greater position than
-  /// a tile of a higher value.
-  int countInversions() {
-    var count = 0;
-    for (var a = 0; a < size; a++) {
-      final tileA = tileOffsets[a + 1];
-      if (tileA!.value == whiteSpaceValue) {
-        continue;
-      }
-
-      for (var b = a + 1; b < size; b++) {
-        final tileB = tileOffsets[b + 1];
-        if (_isInversion(tileA, tileB!)) {
-          count++;
-        }
-      }
-    }
-    return count;
-  }
-
-  /// Determines if the two tiles are inverted.
-  bool _isInversion(TileModel a, TileModel b) {
-    if (b != tileOffsets[whiteSpaceValue] && a.value != b.value) {
-      if (b.value < a.value) {
-        return compareTo(b.currentPosition, a.currentPosition) > 0;
+      double focusX = 0, focusY = 0;
+      final group = <TileModel>[];
+      if (whitePos.dx == size - 1) {
+        focusX = whitePos.dx - 1;
+        focusY = findPossibleY(whitePos.dy);
+        group.addAll(findFocusGroup(focusX, focusY));
+      } else if (whitePos.dx == 0) {
+        focusX = whitePos.dx + 1;
+        focusY = findPossibleY(whitePos.dy);
+        group.addAll(findFocusGroup(focusX, focusY));
       } else {
-        return compareTo(a.currentPosition, b.currentPosition) > 0;
+        if (Random().nextBool()) {
+          focusX = whitePos.dx + 1;
+        } else {
+          focusX = whitePos.dx - 1;
+        }
+        focusY = findPossibleY(whitePos.dy);
+        group.addAll(findFocusGroup(focusX, focusY));
       }
+      rotateFocusTileGroup(group);
     }
-    return false;
+
+    setState(() {});
   }
 
-  int compareTo(Offset origin, Offset other) {
-    if (origin.dy < other.dy) {
-      return -1;
-    } else if (origin.dy > other.dy) {
-      return 1;
+  double findPossibleY(double whitePosY) {
+    var focusY = whitePosY;
+    if (whitePosY == 0) {
+      focusY = whitePosY + 1;
+    } else if (whitePosY == size - 1) {
+      focusY = whitePosY - 1;
     } else {
-      if (origin.dx < other.dx) {
-        return -1;
-      } else if (origin.dx > other.dx) {
-        return 1;
+      if (Random().nextBool()) {
+        focusY = whitePosY + 1;
       } else {
-        return 0;
+        focusY = whitePosY - 1;
       }
     }
+
+    return focusY;
+  }
+
+  List<TileModel> findFocusGroup(double focusX, double focusY) {
+    return tileOffsets.values
+        .where((tile) => isInGroup(tile, focusX, focusY))
+        .toList();
+  }
+
+  isInGroup(TileModel tile, double focusX, double focusY) {
+    return tile.currentPosition ==
+            Offset(whiteSpaceCurrentPosition.dx, focusY) ||
+        tile.currentPosition == Offset(focusX, whiteSpaceCurrentPosition.dy) ||
+        tile.currentPosition == Offset(focusX, focusY);
+  }
+
+  rotateFocusTileGroup(List<TileModel> group) {
+    final t1 = tileOffsets[whiteSpaceValue]!;
+    final t2 = group.firstWhere((tile) =>
+        tile.currentPosition.dy == t1.currentPosition.dy &&
+        tile.currentPosition != t1.currentPosition);
+    final t3 = group.firstWhere((tile) =>
+        tile.currentPosition.dx == t2.currentPosition.dx &&
+        tile.currentPosition != t2.currentPosition);
+    final t4 = group.firstWhere((tile) =>
+        tile.currentPosition.dy == t3.currentPosition.dy &&
+        tile.currentPosition != t3.currentPosition);
+
+    final sortGroup = [t1, t2, t3, t4];
+    final refGroup = List<TileModel>.from(sortGroup);
+    final shiftTime = Random().nextInt(4);
+
+    for (var i = 0; i < 4; i++) {
+      final trimShiftTime = (i + shiftTime) % 4;
+      final focusValue = sortGroup[i].value;
+      tileOffsets[focusValue] = tileOffsets[focusValue]!
+          .copyWith(newPosition: refGroup[trimShiftTime].currentPosition);
+    }
+    whiteSpaceCurrentPosition = tileOffsets[whiteSpaceValue]!.currentPosition;
   }
 }

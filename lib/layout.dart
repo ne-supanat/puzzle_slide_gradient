@@ -28,7 +28,7 @@ class ResponsiveLayoutState extends State<ResponsiveLayout> {
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       Future.delayed(
-          Duration(milliseconds: 20 * size * size + 400),
+          Duration(milliseconds: 20 * size * size + 600),
           () => {
                 setState(() {
                   isReady = true;
