@@ -18,11 +18,6 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    preloadImage();
-  }
-
-  preloadImage() {
-    precacheImage(AssetImage('assets/images/cat.gif'), context);
   }
 
   @override

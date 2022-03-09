@@ -128,9 +128,13 @@ class ResponsiveLayoutState extends State<ResponsiveLayout> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          titleText,
-          style: PuzzleTextStyle.headline3.copyWith(color: PuzzleColor.white),
+        Container(
+          alignment: Alignment.center,
+          constraints: const BoxConstraints(minWidth: 250),
+          child: Text(
+            titleText,
+            style: PuzzleTextStyle.headline3.copyWith(color: PuzzleColor.white),
+          ),
         ),
         const SizedBox(height: 16),
         TextButton(
@@ -181,9 +185,15 @@ class ResponsiveLayoutState extends State<ResponsiveLayout> {
   }
 
   onAllCorrect() {
-    setState(() {
-      titleText = 'Well done. Congrats!';
-    });
+    if (titleText == 'Well done. Congrats!') {
+      setState(() {
+        titleText = staterText;
+      });
+    } else {
+      setState(() {
+        titleText = 'Well done. Congrats!';
+      });
+    }
   }
 
   onShuffle() {
