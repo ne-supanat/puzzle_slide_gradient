@@ -248,7 +248,7 @@ class _BoardState extends State<Board> {
   }
 
   simulationShuffle() {
-    for (var i = 0; i < 35; i++) {
+    for (var i = 0; i < 40; i++) {
       final whitePos = whiteSpaceCurrentPosition;
 
       double focusX = 0, focusY = 0;
@@ -273,7 +273,10 @@ class _BoardState extends State<Board> {
       rotateFocusTileGroup(group);
     }
 
-    setState(() {});
+    setState(() {
+      isFinish = false;
+      tileOffsets;
+    });
   }
 
   double findPossibleY(double whitePosY) {
