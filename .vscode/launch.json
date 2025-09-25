@@ -5,10 +5,21 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "pwa-chrome",
+            "name": "puzzle_slide_gradient",
             "request": "launch",
-            "name": "Open index.html",
-            "file": "/Users/ne/Work/Flutter/slide_puzz/web/index.html"
+            "type": "dart"
+        },
+        {
+            "name": "puzzle_slide_gradient (profile mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "puzzle_slide_gradient (release mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
         }
     ]
 }
